@@ -17,8 +17,7 @@ class TreeNode {
   }
 
   public isLeaf(): boolean {
-    // TODO: check for left child should be enough
-    return (!this.childLeft || !this.childRight);
+    return !this.childLeft;
   }
 
   public getCopy(): TreeNode {

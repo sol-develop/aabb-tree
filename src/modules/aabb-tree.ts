@@ -52,65 +52,73 @@ class AabbTree {
     return this;
   }
 
-  public removeElement(element: any) {
-    // pass
-  }
-
-  public getElementByPointCollision(
-    x: number,
-    y: number,
-    elementCollisionFunction: (x: number, y: number, element: any) => boolean,
-  ): any {
-    if (!this.root) {
-      return null;
-    }
-
-    return this.getElementByPointCollisionRecursive(this.root, x, y, elementCollisionFunction);
-  }
-
-  public getElementByAabbCollision(
-    aabb: Aabb,
-    elementCollisionFunction: (aabb: Aabb, element: any) => boolean,
-  ): any {
+  public removeElement(element: any): any {
     // pass
   }
 
   /**
-   * Recursive function to get an element that collides with given point.
-   * @param node the current node to check
+   * Get all elements that collides with given point.
    * @param x x coordinate of point
    * @param y y coordinate of point
-   * @param elementCollisionFunction (optional) a function for pixel perfect collision detection against found element
+   *
+   * @returns array of colliding elements
    */
-  private getElementByPointCollisionRecursive(
-    node: TreeNode,
-    x: number,
-    y: number,
-    elementCollisionFunction: (x: number, y: number, element: any) => boolean,
-  ): any {
-    const currentAabb: Aabb = node.getAabb();
+  public getElementsByPointCollision(x: number, y: number): any[] {
+    const stack: TreeNode[] = [];
+    const collidingElements: any[] = [];
+    let currentNode: TreeNode;
 
-    if (currentAabb.collidesWithPoint(x, y)) {
-      if (node.isLeaf()) {
-        if (
-          typeof elementCollisionFunction !== "function" ||
-          elementCollisionFunction(x, y, node.getElement())
-        ) {
-          return node.getElement();
+    if (!this.root) {
+      return collidingElements;
+    }
+
+    stack.push(this.root);
+
+    while (stack.length > 0) {
+      currentNode = stack.pop();
+      if (currentNode.getAabb().collidesWithPoint(x, y)) {
+        if (currentNode.isLeaf()) {
+          collidingElements.push(currentNode.getElement());
+        } else {
+          stack.push(currentNode.getLeftChild());
+          stack.push(currentNode.getRightChild());
         }
-      } else {
-        const leftElement = this.getElementByPointCollisionRecursive(
-          node.getLeftChild(), x, y, elementCollisionFunction,
-        );
-        if (leftElement !== null) {
-          return leftElement;
-        }
-        return this.getElementByPointCollisionRecursive(node.getRightChild(), x, y, elementCollisionFunction);
       }
     }
 
-    // no collision
-    return null;
+    return collidingElements;
+  }
+
+  /**
+   * Get all elements that collides with given aabb.
+   * @param aabb the aabb to test the collision with
+   *
+   * @returns array of colliding elements
+   */
+  public getElementsByAabbCollision(aabb: Aabb): any[] {
+    const stack: TreeNode[] = [];
+    const collidingElements: any[] = [];
+    let currentNode: TreeNode;
+
+    if (!this.root) {
+      return collidingElements;
+    }
+
+    stack.push(this.root);
+
+    while (stack.length > 0) {
+      currentNode = stack.pop();
+      if (currentNode.getAabb().collidesWithAabb(aabb)) {
+        if (currentNode.isLeaf()) {
+          collidingElements.push(currentNode.getElement());
+        } else {
+          stack.push(currentNode.getLeftChild());
+          stack.push(currentNode.getRightChild());
+        }
+      }
+    }
+
+    return collidingElements;
   }
 }
 

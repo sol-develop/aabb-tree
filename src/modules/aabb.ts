@@ -59,6 +59,15 @@ class Aabb {
     );
   }
 
+  public collidesWithAabb(aabb: Aabb): boolean {
+    return (
+      this.maxX >= aabb.getMinX() &&
+      this.minX <= aabb.getMaxX() &&
+      this.maxY >= aabb.getMinY() &&
+      this.minY <= aabb.getMaxY()
+    );
+  }
+
   private calculateAcreage(): Aabb {
     this.acreage = (this.maxX - this.minX) * (this.maxY - this.minY);
 
